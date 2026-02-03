@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Academic Progress Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Header with Streak and Points -->
+    <header class="app-header">
+        <div class="header-content">
+            <h1><i class="fas fa-graduation-cap"></i> Academic Tracker</h1>
+            <div class="header-stats">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="streak-display">
+                    <i class="fas fa-fire"></i>
+                    <span id="streakCount">0</span>
+                    <span class="streak-label">Day Streak</span>
+                </div>
+                <div class="points-display">
+                    <i class="fas fa-star"></i>
+                    <span id="pointsCount">0</span>
+                    <span class="points-label">Points</span>
+                    <button class="reset-points-btn" onclick="resetPoints()" title="Reset points to zero">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+        <button class="nav-tab active" data-view="dashboard">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </button>
+        <button class="nav-tab" data-view="tasks">
+            <i class="fas fa-tasks"></i>
+            <span>Tasks</span>
+        </button>
+        <button class="nav-tab" data-view="calendar">
+            <i class="fas fa-calendar"></i>
+            <span>Calendar</span>
+        </button>
+        <button class="nav-tab" data-view="focus">
+            <i class="fas fa-clock"></i>
+            <span>Focus</span>
+        </button>
+        <button class="nav-tab" data-view="progress">
+            <i class="fas fa-chart-bar"></i>
+            <span>Progress</span>
+        </button>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Dashboard View -->
+        <div id="dashboardView" class="view active">
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <i class="fas fa-tasks"></i>
+                    <div class="stat-content">
+                        <h3 id="todayTasksCount">0</h3>
+                        <p>Tasks Today</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="stat-content">
+                        <h3 id="weekCompletedCount">0</h3>
+                        <p>Completed This Week</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="stat-content">
+                        <h3 id="overdueTasksCount">0</h3>
+                        <p>Overdue Tasks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="recent-tasks">
+                <h2>Recent Tasks</h2>
+                <div id="recentTasksList" class="tasks-list">
+                    <!-- Tasks will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks View -->
+        <div id="tasksView" class="view">
+            <div class="view-header">
+                <h2>Task Management</h2>
+                <button class="btn-primary" id="addTaskBtn">
+                    <i class="fas fa-plus"></i> Add New Task
+                </button>
+            </div>
+
+            <!-- Task Filters -->
+            <div class="task-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+                <button class="filter-btn" data-filter="overdue">Overdue</button>
+            </div>
+
+            <!-- Add Task Form (Hidden by default) -->
+            <div id="addTaskForm" class="task-form-container" style="display: none;">
+                <form id="taskForm" class="task-form">
+                    <div class="form-group">
+                        <label for="taskTitle">Task Title *</label>
+                        <input type="text" id="taskTitle" class="input-large" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDescription">Description</label>
+                        <textarea id="taskDescription" class="input-large" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskDeadlineDate">Deadline Date *</label>
+                            <input type="date" id="taskDeadlineDate" class="input-large" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDeadlineTime">Deadline Time *</label>
+                            <input type="time" id="taskDeadlineTime" class="input-large" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskCategory">Subject / Category</label>
+                        <select id="taskCategory" class="input-large">
+                            <option value="general" selected>General 📚</option>
+                            <option value="math">Math 📐</option>
+                            <option value="science">Science 🧪</option>
+                            <option value="history">History 🏛️</option>
+                            <option value="languages">Languages 💬</option>
+                            <option value="coding">Coding 💻</option>
+                            <option value="arts">Arts 🎨</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority" class="input-large">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Add Task</button>
+                        <button type="button" class="btn-secondary" id="cancelTaskBtn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tasks List -->
+            <div id="tasksList" class="tasks-list">
+                <!-- Tasks will be populated here -->
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div id="calendarView" class="view">
+            <div class="view-header">
+                <h2>Calendar</h2>
+                <div class="calendar-nav">
+                    <button class="btn-icon" id="prevMonthBtn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span id="currentMonthYear"></span>
+                    <button class="btn-icon" id="nextMonthBtn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="calendarContainer" class="calendar-container">
+                <!-- Calendar will be generated here -->
+            </div>
+            <div id="selectedDateTasks" class="selected-date-tasks" style="display: none;">
+                <h3 id="selectedDateTitle"></h3>
+                <div id="dateTasksList" class="tasks-list">
+                    <!-- Tasks for selected date -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Focus View -->
+        <div id="focusView" class="view">
+            <div class="view-header">
+                <h2>Focus Timer 🍅</h2>
+            </div>
+            <div class="timer-container">
+                <div class="timer-display">
+                    <div class="timer-circle">
+                        <svg class="progress-ring" width="300" height="300">
+                            <circle class="progress-ring__circle" stroke="var(--primary-color)" stroke-width="10"
+                                fill="transparent" r="140" cx="150" cy="150" />
+                        </svg>
+                        <div class="time-left" id="timeLeft">25:00</div>
+                        <div class="timer-mode" id="timerMode">Focus Time</div>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button class="btn-primary" id="startTimerBtn">
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button class="btn-secondary" id="resetTimerBtn">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+                <div class="timer-settings">
+                    <button class="filter-btn active" onclick="setTimer(25, 'Focus Time')">Pomodoro</button>
+                    <button class="filter-btn" onclick="setTimer(5, 'Short Break')">Short Break</button>
+                    <button class="filter-btn" onclick="setTimer(15, 'Long Break')">Long Break</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress View -->
+        <div id="progressView" class="view">
+            <div class="view-header">
+                <h2>Progress Analytics</h2>
+            </div>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>Weekly Completion</h3>
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Weekly Progress</h3>
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+            <div class="progress-stats">
+                <div class="progress-stat-card">
+                    <h4>Completion Rate</h4>
+                    <div class="progress-percentage" id="completionRate">0%</div>
+                </div>
+                <div class="progress-stat-card">
+                    <h4>Tasks Completed</h4>
+                    <div class="progress-number" id="totalCompleted">0</div>
+                </div>
+                <div class="progress-stat-card">
+                    <h4>Tasks Pending</h4>
+                    <div class="progress-number" id="totalPending">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot-container">
+        <!-- Floating Button -->
+        <button class="chatbot-button" id="chatbotButton" onclick="toggleChatbot()">
+            <i class="fas fa-comments"></i>
+            <span class="chatbot-badge" id="chatbotBadge" style="display: none;">1</span>
+        </button>
+
+        <!-- Chat Window -->
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <div class="chatbot-header-content">
+                    <div class="chatbot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="chatbot-header-text">
+                        <h3>Study Buddy</h3>
+                        <p>Your motivational assistant</p>
+                    </div>
+                </div>
+                <button class="chatbot-close" onclick="toggleChatbot()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages">
+                <!-- Messages will be added here -->
+            </div>
+            <div class="chatbot-input-container">
+                <input type="text" id="chatbotInput" class="chatbot-input" placeholder="Type your message..."
+                    onkeypress="handleChatbotKeyPress(event)">
+                <button class="chatbot-send" onclick="sendChatbotMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
